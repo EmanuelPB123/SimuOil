@@ -280,7 +280,7 @@
         <div class="slider-container">
             <label for="rotation-speed-slider">Velocidad de rotación: <span id="rotation-speed-value">60</span>
                 RPM</label>
-            <input type="range" id="rotation-speed-slider" class="slider" min="40" max="200" step="1" value="60">
+            <input type="range" id="rotation-speed-slider" class="slider" min="10" max="2000" step="1" value="60">
         </div>
         <div class="slider-container">
             <label for="flow">Flujo de lodo: <span id="flow-value">250</span> L/min</label>
@@ -312,36 +312,7 @@
     </div>
 
     <script>
-// Deshabilitar Ctrl+U, Ctrl+Shift+I y Ctrl+Shift+J
-        document.addEventListener('keydown', function(event) {
-            if ((event.ctrlKey && event.shiftKey && event.key === 'I') ||
-                (event.ctrlKey && event.shiftKey && event.key === 'J') ||
-                (event.ctrlKey && event.key === 'U')) {
-                event.preventDefault();
-
-            }
-        });
-                // Deshabilitar Ctrl+U, Ctrl+Shift+I y Ctrl+Shift+J
-                document.addEventListener('keydown', function(event) {
-            if ((event.ctrlKey && event.shiftKey && event.key === 'i') ||
-                (event.ctrlKey && event.shiftKey && event.key === 'j') ||
-                (event.ctrlKey && event.key === 'u')) {
-                event.preventDefault();
-
-            }
-        });
-
-        // Deshabilitar botón derecho del ratón
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
-
-        });
-
-
-
-
-        
-        let scene, camera, renderer, drill, drillBit, ground, drillString;
+        let scene, camera, renderer, drill, drillBit, ground, drillString, longDrillString;
         let crossSectionScene, crossSectionCamera, crossSectionRenderer;
         let isAnimating = false;
         let depth = 0;
@@ -364,7 +335,9 @@
             { type: "lutita", hardness: 1.2, depthStart: 100, depthEnd: 300, color: 0x556B2F },
             { type: "caliza", hardness: 1.5, depthStart: 300, depthEnd: 500, color: 0xF0E68C },
             { type: "dolomita", hardness: 1.7, depthStart: 500, depthEnd: 700, color: 0xFFA07A },
-            { type: "esquisto", hardness: 2.0, depthStart: 700, depthEnd: 1000, color: 0x708090 }
+            { type: "granito", hardness: 2.5, depthStart: 700, depthEnd: 1000, color: 0x708090 },
+            { type: "basalto", hardness: 2.8, depthStart: 1000, depthEnd: 1200, color: 0xD2B48C },
+            { type: "gabro", hardness: 3.0, depthStart: 1200, depthEnd: 5000, color: 0x556B2F }
         ];
 
         const casingStages = [
@@ -448,20 +421,21 @@
 
             const ambientLight = new THREE.AmbientLight(0x404040);
             scene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
-            directionalLight.position.set(1, 1, 1);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.95);
+            directionalLight.position.set(10, 2, 10);
             directionalLight.castShadow = true;
             scene.add(directionalLight);
 
             crossSectionScene.add(ambientLight.clone());
             crossSectionScene.add(directionalLight.clone());
 
+            /* suelo */
             const groundTexture = new THREE.TextureLoader().load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
             groundTexture.wrapS = THREE.RepeatWrapping;
             groundTexture.wrapT = THREE.RepeatWrapping;
             groundTexture.repeat.set(1, 4);
             const groundGeometry = new THREE.PlaneGeometry(500, 500);
-            const groundMaterial = new THREE.MeshPhongMaterial({ map: groundTexture });
+            const groundMaterial = new THREE.MeshPhongMaterial({ map: groundTexture ,roughness: 1, transparent: true, opacity: 0.8 });
             ground = new THREE.Mesh(groundGeometry, groundMaterial);
             ground.rotation.x = -Math.PI / 2;
             ground.receiveShadow = true;
@@ -477,6 +451,113 @@
             tower.castShadow = true;
             tower.receiveShadow = true;
             scene.add(tower);
+
+            // Base
+            const geometry0 = new THREE.BoxGeometry();
+            const material0 = new THREE.MeshPhongMaterial({ color: 0xffffff, roughness: 0.8, transparent: true, opacity: 0.5});
+            const mesh0 = new THREE.Mesh(geometry0, material0);
+            mesh0.position.set(0.00, 0.2, 0.00);
+            mesh0.rotation.set(0.00, 0.00, 0.00);
+            mesh0.scale.set(15.00, 0.5, 15.00);
+            mesh0.castShadow = true;
+            mesh0.receiveShadow = true;
+            scene.add(mesh0);
+
+
+            /* 1er anillo */
+            const geometry1 = new THREE.CylinderGeometry();
+            const material1 = new THREE.MeshPhongMaterial({ color: 0x000000, metalness: 1, roughness: 0.5, transparent: true, opacity: 0.5 });
+            const mesh1 = new THREE.Mesh(geometry1, material1);
+            mesh1.position.set(0.00, 5.00, 0.00);
+            mesh1.rotation.set(0.00, 0.00, 0.00);
+            mesh1.scale.set(2.00, 1.00, 2.00);
+            mesh1.castShadow = true;
+            mesh1.receiveShadow = true;
+            scene.add(mesh1);
+            /* 2do anillo */
+            const geometry2 = new THREE.CylinderGeometry();
+            const material2 = new THREE.MeshPhongMaterial({ color: 0x000000, metalness: 1, roughness: 0.5, transparent: true, opacity: 0.5 });
+            const mesh2 = new THREE.Mesh(geometry2, material2);
+            mesh2.position.set(0.00, 10.00, 0.00);
+            mesh2.rotation.set(0.00, 0.00, 0.00);
+            mesh2.scale.set(2.00, 1.00, 2.00);
+            mesh2.castShadow = true;
+            mesh2.receiveShadow = true;
+            scene.add(mesh2);
+
+
+            // cubo rojo
+            const geometry3 = new THREE.BoxGeometry();
+            const material3 = new THREE.MeshPhongMaterial({ color: 0xff0000, metalness: 1, roughness: 0.5, transparent: true, opacity: 0.5 });
+            const mesh3 = new THREE.Mesh(geometry3, material3);
+            mesh3.position.set(0.00, 15, 0.00);
+            mesh3.rotation.set(0.00, 0.00, 0.00);
+            mesh3.scale.set(5.00, 5, 5);
+            mesh3.castShadow = true;
+            mesh3.receiveShadow = true;
+            scene.add(mesh3);
+
+
+            // Cabina principal (escala 15x)
+/*             const geometrycockpit0 = new THREE.BoxGeometry();
+            const materialcockpit0 = new THREE.MeshPhongMaterial({ color: 0xff3030 });
+            const meshcockpit0 = new THREE.Mesh(geometrycockpit0, materialcockpit0);
+            meshcockpit0.position.set(0.00, 16.00, -50.00);
+            meshcockpit0.rotation.set(0.00, 0.00, 0.00);
+            meshcockpit0.scale.set(46.50, 22.50, 15.00); // Escala aumentada
+            scene.add(meshcockpit0); */
+
+            /* Cabina (escala 15x) */
+/*             const geometrycockpit1 = new THREE.BoxGeometry();
+            const materialcockpit1 = new THREE.MeshPhongMaterial({ color: 0xd3d3d3 });
+            const meshgeometrycockpit1 = new THREE.Mesh(geometrycockpit1, materialcockpit1);
+            meshgeometrycockpit1.position.set(-30.00, 12.25, -50.00);
+            meshgeometrycockpit1.rotation.set(0.00, 0.00, 0.00);
+            meshgeometrycockpit1.scale.set(15.00, 15.00, 15.00); // Escala aumentada
+            scene.add(meshgeometrycockpit1); */
+
+/*             // Rueda 1 (escala 15x)
+            const geometryrueda1 = new THREE.CylinderGeometry();
+            const materialrueda1 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const meshrueda1 = new THREE.Mesh(geometryrueda1, materialrueda1);
+            meshrueda1.position.set(-29.10, 4.3, -44
+            );
+            meshrueda1.rotation.set(1.56, 0.06, 0.00);
+            meshrueda1.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+            scene.add(meshrueda1); */
+
+/*             // Rueda 2 (escala 15x)
+            const geometryrueda2 = new THREE.CylinderGeometry();
+            const materialrueda2 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const meshrueda2 = new THREE.Mesh(geometryrueda2, materialrueda2);
+            meshrueda2.position.set(15.10, 4.3, -44
+            );
+            meshrueda2.rotation.set(1.56, 0.06, 0.00);
+            meshrueda2.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+            scene.add(meshrueda2); */
+
+/*             // Rueda 3 (escala 15x)
+            const geometryrueda3 = new THREE.CylinderGeometry();
+            const materialrueda3 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const meshrueda3 = new THREE.Mesh(geometryrueda3, materialrueda3);
+            meshrueda3.position.set(-29.10, 4.3, -56
+            );
+            meshrueda3.rotation.set(1.56, 0.06, 0.00);
+            meshrueda3.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+            scene.add(meshrueda3); */
+
+/*             // Rueda 4 (escala 15x)
+            const geometryrueda4 = new THREE.CylinderGeometry();
+            const materialrueda4 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const meshrueda4 = new THREE.Mesh(geometryrueda4, materialrueda4);
+            meshrueda4.position.set(15.10, 4.3, -56
+            );
+            meshrueda4.rotation.set(1.56, 0.06, 0.00);
+            meshrueda4.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+            scene.add(meshrueda4);
+ */
+            /* rotacion */
+
 
             drill = new THREE.Group();
             drillString = new THREE.Group();
@@ -505,26 +586,40 @@
             createUndergroundLayers();
             createCrossSectionDrill();
             generateResourceLocation();
+
+            /* cilindro int */
+            const longDrillStringGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1000, 32); // Altura de 30
+            const longDrillStringMaterial = new THREE.MeshPhongMaterial({ color: 0x555555, metalness: 0.7, roughness: 0.3 });
+            const longDrillStringMesh = new THREE.Mesh(longDrillStringGeometry, longDrillStringMaterial);
+            longDrillStringMesh.castShadow = true;
+            longDrillStringMesh.position.y = 500; // Moverlo hacia arriba para que esté alineado
+            drillString.add(longDrillStringMesh);
+
         }
 
+
+
+
+        /* marcadores de rotacion */
         function addRotationMarkers() {
             const markerGeometry = new THREE.BoxGeometry(0.1, 0.5, 0.1);
-            const markerMaterial = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+            const markerMaterial = new THREE.MeshPhongMaterial({ color: 0x0fff00, });
 
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 340; i++) {
                 const marker = new THREE.Mesh(markerGeometry, markerMaterial);
                 marker.position.y = i * 3 - 7.5;
                 marker.position.x = 0.25;
                 drillString.add(marker);
                 rotationMarkers.push(marker);
             }
+            /* 34=100m */
         }
-
+        /* mordologia capas */
         function createUndergroundLayers() {
             geologicalLayers.forEach((layer, index) => {
                 const layerHeight = layer.depthEnd - layer.depthStart;
                 const layerGeometry = new THREE.BoxGeometry(10, layerHeight / 50, 5);
-                const layerMaterial = new THREE.MeshPhongMaterial({ color: layer.color });
+                const layerMaterial = new THREE.MeshPhongMaterial({ color: layer.color, transparent: true, opacity: 0.5 });
                 const layerMesh = new THREE.Mesh(layerGeometry, layerMaterial);
                 layerMesh.position.y = -(layer.depthStart + layerHeight / 2) / 50;
                 layerMesh.userData = { ...layer };
@@ -533,11 +628,12 @@
             });
         }
 
+        /* morfologia varilla 2d */
         function createCrossSectionDrill() {
-            const drillGeometry = new THREE.BoxGeometry(0.3, 1, 0.3);
+            const drillGeometry = new THREE.BoxGeometry(0.3, 10, 0.3);
             const drillMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
             crossSectionDrill = new THREE.Mesh(drillGeometry, drillMaterial);
-            crossSectionDrill.position.y = 0;
+            crossSectionDrill.position.y = 10;
             crossSectionScene.add(crossSectionDrill);
         }
 
@@ -594,11 +690,12 @@
             return baseSpeed * hardnessFactor * rotationFactor * wearFactor * flowFactor * wobFactor;
         }
 
+        /* posicion varilla 2d */
         function updateCrossSection() {
             const drillDepth = Math.min(depth, 1000);
 
-            crossSectionDrill.position.y = -drillDepth / 50;
-            crossSectionDrill.scale.y = drillDepth / 50;
+            crossSectionDrill.position.y = -drillDepth / 100;
+            /* crossSectionDrill.scale.y = drillDepth / 50 */;
 
             crossSectionCamera.position.y = -drillDepth / 100;
             crossSectionCamera.lookAt(0, -drillDepth / 100, 0);
@@ -755,7 +852,7 @@
 
         function updateDepthMarker(depth) {
             let marker = document.getElementById("depth-marker");
-            let percentage = Math.min(depth / 1000, 1) * 100;
+            let percentage = Math.min(depth / 8000, 1) * 100;
             marker.style.top = `${100 - percentage}%`;
             document.getElementById("depth-label").textContent = `${depth.toFixed(2)} m`;
         }
