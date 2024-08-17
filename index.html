@@ -1,0 +1,849 @@
+<html>
+
+<head>
+    <base href="https://oilsim.petrovirtual.com/">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simulador Avanzado de Perforación Petrolera con Casing Mejorado</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            border-style: dashed;
+            border-color: ffa600;
+        }
+
+        @keyframes overlaywarning {
+            0% {
+                border-color: #ffa600;
+            }
+
+            50% {
+                border-color: #ff0000;
+            }
+
+            100% {
+                border-color: #ffa600;
+            }
+        }
+
+        #ui-overlay:hover {
+            animation: overlaywarning 1s infinite;
+        }
+
+        .control-panel {
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 15px;
+            border-radius: 0px;
+            font-size: 14px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 300px;
+            height: 100%;
+            border: 2px #0051ff solid;
+            transition: 1s;
+        }
+
+        .control-panel:hover {
+            border: 2px rgb(0, 217, 255) solid;
+            transition: 1s;
+            box-shadow: 1px 10px 10px rgb(255, 0, 0);
+        }
+
+        .control-panel button,
+        .control-panel select {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px 15px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .control-panel button:hover,
+        .control-panel select:hover {
+            background: #ffffff;
+            color: #1a1a1a;
+        }
+
+        .control-panel .slider-container {
+            margin: 15px 0;
+        }
+
+        .control-panel .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .control-panel .slider {
+            width: 100%;
+        }
+
+        #cross-section {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 300px;
+            height: 200px;
+            background: #0044ff;
+            border: 2px solid #0080ff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+        }
+
+        .parameter {
+            margin-bottom: 10px;
+        }
+
+        .parameter-name {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .parameter-value {
+            margin-left: 5px;
+        }
+
+        #layer-info {
+            position: absolute;
+            top: 500px;
+            left: 350px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 4px #0044ff ridge;
+            transition: 1s;
+        }
+
+        #layer-info:hover {
+            border: 4px #c9d7ff ridge;
+            transition: 1s;
+        }
+
+        #resource-probability {
+            margin-top: 20px;
+        }
+
+        #resource-probability label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        #resource-probability input {
+            width: 50px;
+        }
+
+        #depth-bar {
+            width: 50px;
+            height: 500px;
+            background: linear-gradient(to top, #491100 0%, #b94400 100%);
+            position: absolute;
+            right: 370px;
+            top: 100px;
+            border-radius: 5px;
+            overflow: hidden;
+            border: #ffa600 solid;
+        }
+
+        #depth-marker {
+            width: 100%;
+            height: 5px;
+            background: rgb(0, 255, 242);
+            position: absolute;
+            top: 0;
+            transition: top 0.3s ease-out;
+            border: #ff0101 solid 1.5px;
+        }
+
+        #depth-label {
+            position: absolute;
+            right: 380px;
+            top: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 3px;
+            border: #ff0000 solid;
+        }
+
+        #casing-info {
+            position: absolute;
+            top: 575px;
+            left: 650px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 4px #0044ff ridge;
+            transition: 1s;
+        }
+
+        #casing-info:hover {
+            border: 4px #c9d7ff ridge;
+            transition: 1s;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+</head>
+
+<body>
+    <div id="canvas-container"></div>
+    <div id="ui-overlay">
+        <h2>Simulador Avanzado de Perforación</h2>
+        <div class="parameter">
+            <span class="parameter-name">Profundidad:</span>
+            <span id="depth" class="parameter-value">0</span> m
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Presión:</span>
+            <span id="pressure" class="parameter-value">0</span> PSI
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Temperatura:</span>
+            <span id="temperature" class="parameter-value">0</span> °C
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Densidad del lodo:</span>
+            <span id="mud-density" class="parameter-value">1.0</span> g/cm³
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Velocidad de rotación:</span>
+            <span id="rotation-speed" class="parameter-value">0</span> RPM
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Desgaste de broca:</span>
+            <span id="bit-wear" class="parameter-value">0</span> %
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Distancia al recurso:</span>
+            <span id="resource-distance" class="parameter-value">N/A</span> m
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Flujo de lodo:</span>
+            <span id="mud-flow" class="parameter-value">250</span> L/min
+        </div>
+        <div class="parameter">
+            <span class="parameter-name">Peso sobre la broca:</span>
+            <span id="wob" class="parameter-value">25</span> kN
+        </div>
+    </div>
+    <div class="control-panel">
+        <button id="start-drill">Iniciar Perforación</button>
+        <button id="stop-drill">Detener Perforación</button>
+        <button id="reset-operation">Reiniciar Operación</button>
+        <button id="raise-drill">Subir Broca</button>
+        <select id="drill-bit-type">
+            <option value="tricone">Tricónica</option>
+            <option value="pdc">PDC (Diamante policristalino compacto)</option>
+            <option value="diamond">Diamante natural</option>
+            <option value="coring">Broca sacatestigos</option>
+        </select>
+        <button id="change-bit">Cambiar Broca</button>
+        <button id="install-casing">Instalar Casing</button>
+        <div class="slider-container">
+            <label for="mud-density-slider">Densidad del lodo: <span id="mud-density-value">1.0</span> g/cm³</label>
+            <input type="range" id="mud-density-slider" class="slider" min="0.8" max="2.5" step="0.1" value="1.0">
+        </div>
+        <div class="slider-container">
+            <label for="rotation-speed-slider">Velocidad de rotación: <span id="rotation-speed-value">60</span>
+                RPM</label>
+            <input type="range" id="rotation-speed-slider" class="slider" min="40" max="200" step="1" value="60">
+        </div>
+        <div class="slider-container">
+            <label for="flow">Flujo de lodo: <span id="flow-value">250</span> L/min</label>
+            <input type="range" id="flow" class="slider" min="0" max="500" step="10" value="250">
+        </div>
+        <div class="slider-container">
+            <label for="wob-slider">Peso sobre la broca: <span id="wob-value">25</span> kN</label>
+            <input type="range" id="wob-slider" class="slider" min="0" max="50" step="1" value="25">
+        </div>
+        <div id="resource-probability">
+            <h3>Probabilidad de recursos</h3>
+            <label>Petróleo: <input type="number" id="oil-probability" min="0" max="100" value="33">%</label>
+            <label>Gas: <input type="number" id="gas-probability" min="0" max="100" value="33">%</label>
+            <label>Agua: <input type="number" id="water-probability" min="0" max="100" value="34">%</label>
+        </div>
+    </div>
+    <div id="cross-section"></div>
+    <div id="layer-info">
+        <h3>Información de la Capa Actual</h3>
+        <div id="current-layer"></div>
+    </div>
+    <div id="depth-bar">
+        <div id="depth-marker"></div>
+    </div>
+    <div id="depth-label">0 m</div>
+    <div id="casing-info">
+        <h3>Información del Casing</h3>
+        <div id="current-casing"></div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, drill, drillBit, ground, drillString;
+        let crossSectionScene, crossSectionCamera, crossSectionRenderer;
+        let isAnimating = false;
+        let depth = 0;
+        let maxDepthReached = 0;
+        let layers = [];
+        let crossSectionDrill;
+        let mudDensity = 1.0;
+        let rotationSpeed = 60;
+        let bitWear = 0;
+        let currentLayerIndex = 0;
+        let resourceDepth;
+        let resourceType;
+        let isDrillRaised = false;
+        let rotationMarkers = [];
+        let flow = 250;
+        let wob = 25;
+
+        const geologicalLayers = [
+            { type: "arenisca", hardness: 0.8, depthStart: 0, depthEnd: 100, color: 0xD2B48C },
+            { type: "lutita", hardness: 1.2, depthStart: 100, depthEnd: 300, color: 0x556B2F },
+            { type: "caliza", hardness: 1.5, depthStart: 300, depthEnd: 500, color: 0xF0E68C },
+            { type: "dolomita", hardness: 1.7, depthStart: 500, depthEnd: 700, color: 0xFFA07A },
+            { type: "esquisto", hardness: 2.0, depthStart: 700, depthEnd: 1000, color: 0x708090 }
+        ];
+
+        const casingStages = [
+            { depth: 500, diameter: 20 }, // 20 pulgadas de casing a 500 metros
+            { depth: 1000, diameter: 13.375 }, // 13 3/8 pulgadas de casing a 1000 metros
+        ];
+
+        let installedCasings = [];
+
+        function getCurrentLayer(depth) {
+            return geologicalLayers.find(layer => depth >= layer.depthStart && depth < layer.depthEnd);
+        }
+
+        /* puntas */
+
+        function createDrillBit(type) {
+            if (drillBit) {
+                drill.remove(drillBit);
+            }
+
+            let bitGeometry;
+            let bitColor;
+
+            switch (type) {
+                case 'tricone':
+                    bitGeometry = new THREE.ConeGeometry(0.75, 1.5, 32);
+                    bitColor = 0x0074ff; // Azul
+                    break;
+                case 'pdc':
+                    bitGeometry = new THREE.CylinderGeometry(0.5, 0.75, 1.5, 32);
+                    bitColor = 0xff0000; // Rojo
+                    break;
+                case 'diamond':
+                    bitGeometry = new THREE.ConeGeometry(0.75, 1.5, 32);
+                    bitColor = 0xffb900; // Amarillo
+                    break;
+                case 'coring':
+                    bitGeometry = new THREE.CylinderGeometry(0.75, 0.75, 3.5, 32);
+                    bitColor = 0x000000; // Azul
+                    break;
+                default:
+                    bitGeometry = new THREE.ConeGeometry(0.5, 1.5, 32);
+                    bitColor = 0xffffff; // Blanco (por defecto)
+            }
+
+            const bitMaterial = new THREE.MeshPhongMaterial({
+                color: bitColor,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+
+            drillBit = new THREE.Mesh(bitGeometry, bitMaterial);
+            drillBit.position.y = -8.25;
+            drillBit.castShadow = true;
+            drill.add(drillBit);
+
+            gsap.from(drillBit.scale, {
+                x: 0,
+                y: 0,
+                z: 0,
+                duration: 1,
+                ease: "elastic.out(1, 0.3)"
+            });
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x5AA7FF);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            crossSectionScene = new THREE.Scene();
+            crossSectionScene.background = new THREE.Color(0x5AA7FF);
+            crossSectionCamera = new THREE.OrthographicCamera(-5, 5, 10, -10, 0.1, 1000);
+            crossSectionRenderer = new THREE.WebGLRenderer({ antialias: true });
+            crossSectionRenderer.setSize(300, 200);
+            document.getElementById('cross-section').appendChild(crossSectionRenderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
+            directionalLight.position.set(1, 1, 1);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            crossSectionScene.add(ambientLight.clone());
+            crossSectionScene.add(directionalLight.clone());
+
+            const groundTexture = new THREE.TextureLoader().load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
+            groundTexture.wrapS = THREE.RepeatWrapping;
+            groundTexture.wrapT = THREE.RepeatWrapping;
+            groundTexture.repeat.set(1, 4);
+            const groundGeometry = new THREE.PlaneGeometry(500, 500);
+            const groundMaterial = new THREE.MeshPhongMaterial({ map: groundTexture });
+            ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            /* cilindro ext*/
+            const towerGeometry = new THREE.CylinderGeometry(1, 1, 40, 10);
+            const towerMaterial = new THREE.MeshPhongMaterial({
+                color: 0x000000, metalness: 1, roughness: 0.5, transparent: true, opacity: 0.5
+            });
+            const tower = new THREE.Mesh(towerGeometry, towerMaterial);
+            tower.position.y = 10;
+            tower.castShadow = true;
+            tower.receiveShadow = true;
+            scene.add(tower);
+
+            drill = new THREE.Group();
+            drillString = new THREE.Group();
+            drill.add(drillString);
+
+            /* cilindro int*/
+            const drillStringGeometry = new THREE.CylinderGeometry(0.2, 0.2, 16, 32);
+            const drillStringMaterial = new THREE.MeshPhongMaterial({ color: 0x555555, metalness: 0.7, roughness: 0.3 });
+            const drillStringMesh = new THREE.Mesh(drillStringGeometry, drillStringMaterial);
+            drillStringMesh.castShadow = true;
+            drillString.add(drillStringMesh);
+
+            addRotationMarkers();
+
+            createDrillBit('tricone');
+
+            drill.position.y = 10;
+            scene.add(drill);
+
+            camera.position.set(0, 15, 30);
+            camera.lookAt(0, 0, 0);
+
+            crossSectionCamera.position.set(0, 0, 10);
+            crossSectionCamera.lookAt(0, 0, 0);
+
+            createUndergroundLayers();
+            createCrossSectionDrill();
+            generateResourceLocation();
+        }
+
+        function addRotationMarkers() {
+            const markerGeometry = new THREE.BoxGeometry(0.1, 0.5, 0.1);
+            const markerMaterial = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+
+            for (let i = 0; i < 4; i++) {
+                const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+                marker.position.y = i * 3 - 7.5;
+                marker.position.x = 0.25;
+                drillString.add(marker);
+                rotationMarkers.push(marker);
+            }
+        }
+
+        function createUndergroundLayers() {
+            geologicalLayers.forEach((layer, index) => {
+                const layerHeight = layer.depthEnd - layer.depthStart;
+                const layerGeometry = new THREE.BoxGeometry(10, layerHeight / 50, 5);
+                const layerMaterial = new THREE.MeshPhongMaterial({ color: layer.color });
+                const layerMesh = new THREE.Mesh(layerGeometry, layerMaterial);
+                layerMesh.position.y = -(layer.depthStart + layerHeight / 2) / 50;
+                layerMesh.userData = { ...layer };
+                crossSectionScene.add(layerMesh);
+                layers.push(layerMesh);
+            });
+        }
+
+        function createCrossSectionDrill() {
+            const drillGeometry = new THREE.BoxGeometry(0.3, 1, 0.3);
+            const drillMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+            crossSectionDrill = new THREE.Mesh(drillGeometry, drillMaterial);
+            crossSectionDrill.position.y = 0;
+            crossSectionScene.add(crossSectionDrill);
+        }
+
+        function generateResourceLocation() {
+            resourceDepth = 100 + Math.random() * 900;
+            const resourceProbabilities = [
+                parseFloat(document.getElementById('oil-probability').value),
+                parseFloat(document.getElementById('gas-probability').value),
+                parseFloat(document.getElementById('water-probability').value)
+            ];
+            const totalProbability = resourceProbabilities.reduce((a, b) => a + b, 0);
+            const randomValue = Math.random() * totalProbability;
+
+            if (randomValue < resourceProbabilities[0]) {
+                resourceType = 'Petróleo';
+            } else if (randomValue < resourceProbabilities[0] + resourceProbabilities[1]) {
+                resourceType = 'Gas';
+            } else {
+                resourceType = 'Agua';
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (isAnimating) {
+                const drillSpeed = calculateDrillSpeed();
+                depth += drillSpeed;
+                if (depth > maxDepthReached) {
+                    maxDepthReached = depth;
+                }
+                drill.position.y -= drillSpeed;
+                drill.rotation.y += rotationSpeed * 0.01;
+                drillString.rotation.y += rotationSpeed * 0.02;
+                updateCrossSection();
+                updateUI();
+                updateBitWear();
+                checkLayerTransition();
+                checkResourceProximity();
+                updateDepthMarker(depth);
+                updateCasing(depth);
+            }
+            renderer.render(scene, camera);
+            crossSectionRenderer.render(crossSectionScene, crossSectionCamera);
+        }
+
+        function calculateDrillSpeed() {
+            const currentLayer = getCurrentLayer(depth);
+            const baseSpeed = 0.02;
+            const hardnessFactor = 1 / (currentLayer.hardness * 0.5);
+            const rotationFactor = rotationSpeed / 100;
+            const wearFactor = 1 - (bitWear / 200);
+            const flowFactor = flow / 250;
+            const wobFactor = wob / 25;
+            return baseSpeed * hardnessFactor * rotationFactor * wearFactor * flowFactor * wobFactor;
+        }
+
+        function updateCrossSection() {
+            const drillDepth = Math.min(depth, 1000);
+
+            crossSectionDrill.position.y = -drillDepth / 50;
+            crossSectionDrill.scale.y = drillDepth / 50;
+
+            crossSectionCamera.position.y = -drillDepth / 100;
+            crossSectionCamera.lookAt(0, -drillDepth / 100, 0);
+        }
+
+        function updateUI() {
+            document.getElementById('depth').textContent = depth.toFixed(2);
+            const pressure = calculatePressure();
+            document.getElementById('pressure').textContent = pressure.toFixed(2);
+            const temperature = calculateTemperature();
+            document.getElementById('temperature').textContent = temperature.toFixed(2);
+            document.getElementById('mud-density').textContent = mudDensity.toFixed(2);
+            document.getElementById('rotation-speed').textContent = rotationSpeed.toFixed(0);
+            document.getElementById('bit-wear').textContent = bitWear.toFixed(2);
+            document.getElementById('mud-flow').textContent = flow.toFixed(0);
+            document.getElementById('wob').textContent = wob.toFixed(0);
+
+            const currentLayer = getCurrentLayer(depth);
+            document.getElementById('current-layer').innerHTML = `
+        <p>Tipo: ${currentLayer.type}</p>
+        <p>Dureza: ${currentLayer.hardness.toFixed(2)}</p>
+        <p>Profundidad: ${currentLayer.depthStart} - ${currentLayer.depthEnd} m</p>
+    `;
+
+            const distanceToResource = Math.max(0, resourceDepth - depth).toFixed(2);
+            document.getElementById('resource-distance').textContent = distanceToResource;
+        }
+
+        function calculatePressure() {
+            const baseGradient = 0.052;
+            const depthInFeet = depth * 3.28084;
+            return depthInFeet * baseGradient * mudDensity;
+        }
+
+        function calculateTemperature() {
+            const surfaceTemp = 20;
+            const geothermalGradient = 25;
+            return surfaceTemp + (depth / 1000) * geothermalGradient;
+        }
+
+        function updateBitWear() {
+            const currentLayer = getCurrentLayer(depth);
+            const wearRate = (currentLayer.hardness * rotationSpeed * wob) / 100000;
+            bitWear += wearRate;
+            if (bitWear >= 100) {
+                stopDrill();
+                alert("¡La broca se ha desgastado completamente! Por favor, cámbiela para continuar.");
+            }
+        }
+
+        function checkLayerTransition() {
+            const currentLayer = getCurrentLayer(depth);
+            if (currentLayer !== getCurrentLayer(depth - 0.1)) {
+                alert(`¡Nueva capa detectada! Entrando en ${currentLayer.type}`);
+            }
+        }
+
+        function checkResourceProximity() {
+            if (Math.abs(depth - resourceDepth) < 0.1) {
+                stopDrill();
+                alert(`¡Ha alcanzado una reserva de ${resourceType}!`);
+            }
+        }
+
+        function startDrill() {
+            if (!isDrillRaised) {
+                isAnimating = true;
+            } else {
+                alert("La broca está elevada. Bájela antes de iniciar la perforación.");
+            }
+        }
+
+        function stopDrill() {
+            isAnimating = false;
+        }
+
+        function resetOperation() {
+            stopDrill();
+            depth = 0;
+            maxDepthReached = 0;
+            gsap.to(drill.position, {
+                y: 10,
+                duration: 1,
+                ease: "power2.inOut"
+            });
+            drill.rotation.y = 0;
+            drillString.rotation.y = 0;
+            bitWear = 0;
+            currentLayerIndex = 0;
+            isDrillRaised = false;
+            updateUI();
+            updateCrossSection();
+            generateResourceLocation();
+            updateDepthMarker(0);
+            resetCasings();
+        }
+
+        function raiseDrill() {
+            if (!isDrillRaised) {
+                stopDrill();
+                gsap.to(drill.position, {
+                    y: 10,
+                    duration: 2,
+                    ease: "power2.inOut",
+                    onUpdate: () => {
+                        depth = 10 - drill.position.y;
+                        if (depth < 0) depth = 0;
+                        updateUI();
+                        updateCrossSection();
+                        updateDepthMarker(depth);
+                    },
+                    onComplete: () => {
+                        isDrillRaised = true;
+                        alert("Broca elevada. Ahora puede cambiarla.");
+                    }
+                });
+            } else {
+                alert("La broca ya está elevada.");
+            }
+        }
+
+        function changeBit() {
+            if (isDrillRaised) {
+                const selectedBitType = document.getElementById('drill-bit-type').value;
+                createDrillBit(selectedBitType);
+                bitWear = 0;
+                alert(`Broca cambiada a tipo ${selectedBitType}. El desgaste se ha reiniciado.`);
+                lowerDrill();
+            } else {
+                alert("Debe elevar la broca antes de cambiarla.");
+            }
+        }
+
+        function lowerDrill() {
+            if (isDrillRaised) {
+                gsap.to(drill.position, {
+                    y: 10 - maxDepthReached,
+                    duration: 2,
+                    ease: "power2.inOut",
+                    onUpdate: () => {
+                        depth = 10 - drill.position.y;
+                        updateUI();
+                        updateCrossSection();
+                        updateDepthMarker(depth);
+                    },
+                    onComplete: () => {
+                        isDrillRaised = false;
+                        depth = maxDepthReached;
+                        alert("Broca bajada. Puede continuar la perforación.");
+                    }
+                });
+            }
+        }
+
+        function updateDepthMarker(depth) {
+            let marker = document.getElementById("depth-marker");
+            let percentage = Math.min(depth / 1000, 1) * 100;
+            marker.style.top = `${100 - percentage}%`;
+            document.getElementById("depth-label").textContent = `${depth.toFixed(2)} m`;
+        }
+
+        function updateCasing(depth) {
+            for (let stage of casingStages) {
+                if (depth >= stage.depth && !installedCasings.includes(stage.depth)) {
+                    installCasing(stage);
+                }
+            }
+        }
+
+        function installCasing(stage) {
+            // Eliminar casings previos si existen
+            removePreviousCasings(stage.depth);
+
+            const casingMesh = createCasingMesh(stage.diameter, stage.depth);
+            scene.add(casingMesh);
+
+            const crossSectionCasingMesh = createCrossSectionCasing(stage.diameter, stage.depth);
+            crossSectionScene.add(crossSectionCasingMesh);
+
+            installedCasings.push(stage.depth);
+            updateCasingInfo();
+        }
+
+        function removePreviousCasings(currentDepth) {
+            // Eliminar casings de la escena principal
+            scene.children = scene.children.filter(child => {
+                if (child.isMesh && child.userData.isCasing && child.userData.depth < currentDepth) {
+                    return false; // Eliminar este casing
+                }
+                return true; // Mantener otros objetos
+            });
+
+            // Eliminar casings de la escena de sección transversal
+            crossSectionScene.children = crossSectionScene.children.filter(child => {
+                if (child.isMesh && child.userData.isCasing && child.userData.depth < currentDepth) {
+                    return false; // Eliminar este casing
+                }
+                return true; // Mantener otros objetos
+            });
+
+            // Actualizar el array de casings instalados
+            installedCasings = installedCasings.filter(depth => depth >= currentDepth);
+        }
+
+        function createCasingMesh(diameter, depth) {
+            const geometry = new THREE.CylinderGeometry(diameter / 24, diameter / 24, depth, 32);
+            const material = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.5 });
+            const casing = new THREE.Mesh(geometry, material);
+            casing.position.y = -depth / 2;
+            casing.userData = { isCasing: true, depth: depth };
+            return casing;
+        }
+
+        function createCrossSectionCasing(diameter, depth) {
+            const geometry = new THREE.BoxGeometry(diameter / 12, depth / 50, 0.1);
+            const material = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.5 });
+            const casing = new THREE.Mesh(geometry, material);
+            casing.position.y = -depth / 100;
+            casing.userData = { isCasing: true, depth: depth };
+            return casing;
+        }
+
+        function resetCasings() {
+            scene.children = scene.children.filter(child => !child.userData.isCasing);
+            crossSectionScene.children = crossSectionScene.children.filter(child => !child.userData.isCasing);
+            installedCasings = [];
+            updateCasingInfo();
+        }
+
+        function updateCasingInfo() {
+            const casingInfo = installedCasings.map(depth => {
+                const stage = casingStages.find(s => s.depth === depth);
+                return `${stage.diameter}" a ${stage.depth}m`;
+            }).join(', ');
+            document.getElementById('current-casing').textContent = casingInfo || 'No instalado';
+        }
+
+        init();
+        animate();
+
+        document.getElementById('start-drill').addEventListener('click', startDrill);
+        document.getElementById('stop-drill').addEventListener('click', stopDrill);
+        document.getElementById('reset-operation').addEventListener('click', resetOperation);
+        document.getElementById('raise-drill').addEventListener('click', raiseDrill);
+        document.getElementById('change-bit').addEventListener('click', changeBit);
+        document.getElementById('install-casing').addEventListener('click', () =>
+            installCasing(casingStages.find(stage => stage.depth > depth)));
+
+        document.getElementById('mud-density-slider').addEventListener('input', function () {
+            mudDensity = parseFloat(this.value);
+            document.getElementById('mud-density-value').textContent = mudDensity.toFixed(1);
+        });
+
+        document.getElementById('rotation-speed-slider').addEventListener('input', function () {
+            rotationSpeed = parseInt(this.value);
+            document.getElementById('rotation-speed-value').textContent = rotationSpeed;
+        });
+
+        document.getElementById('flow').addEventListener('input', function () {
+            flow = parseInt(this.value);
+            document.getElementById('flow-value').textContent = flow;
+        });
+
+        document.getElementById('wob-slider').addEventListener('input', function () {
+            wob = parseInt(this.value);
+            document.getElementById('wob-value').textContent = wob;
+        });
+
+        window.addEventListener('resize', function () {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>
