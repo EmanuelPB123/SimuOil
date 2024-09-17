@@ -214,6 +214,66 @@
             border: 4px #c9d7ff ridge;
             transition: 1s;
         }
+
+        #tutorial {
+            position: absolute;
+            top: 20px;
+            /* Ajusta la posición vertical según sea necesario */
+            left: 10px;
+            /* Ajusta la posición horizontal según sea necesario */
+            background: rgba(0, 0, 0, 0.7);
+            /* Fondo semi-transparente */
+            color: #fff;
+            /* Color del texto */
+            padding: 15px;
+            /* Espaciado interno */
+            border-radius: 5px;
+            /* Bordes redondeados */
+            font-size: 14px;
+            /* Tamaño de fuente */
+            max-width: 300px;
+            /* Ancho máximo para evitar que se extienda demasiado */
+            overflow-y: auto;
+            /* Permitir desplazamiento si el contenido es demasiado largo */
+            height: 400px;
+            /* Altura fija para el tutorial */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            /* Sombra para destacar el tutorial */
+            z-index: 10;
+            /* Asegura que esté por encima de otros elementos */
+        }
+
+
+        #toggle-tutorial {
+            position: absolute;
+            top: 380px;
+            /* Ajusta la posición vertical según sea necesario */
+            left: 10px;
+            /* Ajusta la posición horizontal según sea necesario */
+            background: rgba(0, 0, 0, 0.7);
+            /* Fondo semi-transparente */
+            color: #ff0000;
+            /* Color del texto */
+            padding: 10px 15px;
+            /* Espaciado interno */
+            border: none;
+            /* Sin borde */
+            border-radius: 5px;
+            /* Bordes redondeados */
+            font-size: 18px;
+            /* Tamaño de fuente */
+            cursor: pointer;
+            /* Cambia el cursor al pasar sobre el botón */
+            z-index: 10;
+            /* Asegura que esté por encima de otros elementos */
+            transition: background 0.3s;
+            /* Transición suave para el fondo */
+        }
+
+        #toggle-tutorial:hover {
+            background: rgba(0, 0, 0, 0.9);
+            /* Cambia el fondo al pasar el mouse */
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
@@ -260,6 +320,65 @@
             <span id="wob" class="parameter-value">25</span> kN
         </div>
     </div>
+
+    <button id="toggle-tutorial">Mostrar/Ocultar Tutorial</button>
+    <div id="tutorial"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+        <h2>Guía Paso a Paso para la Perforación</h2>
+        <ol>
+            <li><strong>Preparación:</strong>
+                <p>Asegúrate de que todos los equipos estén en buen estado. Revisa la broca, el sistema de perforación y
+                    los medidores de presión y temperatura. Ten a mano los materiales necesarios, como lodo de
+                    perforación y casing.</p>
+            </li>
+            <li><strong>Seleccionar Broca:</strong>
+                <p>Elige el tipo de broca adecuada según el tipo de suelo que vas a perforar. Por ejemplo, para suelos
+                    duros, una broca tricónica puede ser más efectiva. Hay disponibles 4 tipos de brocas: Tricónica,
+                    PDC, Diamante y Coring.</p>
+            </li>
+            <li><strong>Iniciar Perforación:</strong>
+                <p>Haz clic en el botón "Iniciar Perforación" en la interfaz. Esto comenzará el proceso de perforación y
+                    la broca comenzará a descender.Las Primeras capas estan cerca y saldran muchas notificaciones en
+                    pantalla. No te preocupes.</p>
+            </li>
+            <li><strong>Monitorear Parámetros:</strong>
+                <p>Observa los parámetros en la interfaz, como profundidad, presión y temperatura. Asegúrate de que se
+                    mantengan dentro de los rangos seguros.</p>
+            </li>
+            <li><strong>Ajustar Velocidad:</strong>
+                <p>Utiliza el control deslizante (que esta del lado derecho) para ajustar la velocidad de rotación de la
+                    broca. Aumenta la velocidad
+                    si el suelo es blando y disminúyela si encuentras resistencia.</p>
+            </li>
+            <li><strong>Detener Perforación:</strong>
+                <p>Si es necesario, haz clic en "Detener Perforación" para pausar el proceso. Esto es útil si necesitas
+                    realizar ajustes o si la broca se ha desgastado. O puedes esperar hasta romper la broca !!!</p>
+            </li>
+            <li><strong>Revisar Desgaste:</strong>
+                <p>Verifica el desgaste de la broca en la interfaz. Si el desgaste es alto, es recomendable cambiar la
+                    broca para evitar daños en el equipo. Para cambiar la broca primero debes dar a boton SUbir Broca
+                    despues seleccionar la broca que quieres o dejar la misma y posteriormente dar a boton Cambiar
+                    Broca. El sistema bajara automaticamente hasta la menor profundidad alcanzada</p>
+            </li>
+            <li><strong>Instalar Casing:</strong>
+                <p>Una vez alcanzada la profundidad deseada, selecciona el botón "Instalar Casing". Esto asegurará la
+                    estructura del pozo y evitará colapsos.</p>
+            </li>
+            <li><strong>Finalizar:</strong>
+                <p>Una vez completada la perforación, asegúrate de limpiar el área de trabajo y revisar el equipo para
+                    prepararlo para futuras operaciones.</p>
+            </li>
+            <li><strong>FIN</strong>
+            </li>
+            <hr>
+            <br>
+            <button id="toggle-tutorial2"
+                style="background: rgba(0, 0, 0, 0.7); color: #ff0000; padding: 10px 15px; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; transition: background 0.3s;">Cerrar</button>
+        </ol>
+    </div>
+    </div>
+
+
     <div class="control-panel">
         <button id="start-drill">Iniciar Perforación</button>
         <button id="stop-drill">Detener Perforación</button>
@@ -312,6 +431,7 @@
     </div>
 
     <script>
+
         let scene, camera, renderer, drill, drillBit, ground, drillString, longDrillString;
         let crossSectionScene, crossSectionCamera, crossSectionRenderer;
         let isAnimating = false;
@@ -435,7 +555,7 @@
             groundTexture.wrapT = THREE.RepeatWrapping;
             groundTexture.repeat.set(1, 4);
             const groundGeometry = new THREE.PlaneGeometry(500, 500);
-            const groundMaterial = new THREE.MeshPhongMaterial({ map: groundTexture ,roughness: 1, transparent: true, opacity: 0.8 });
+            const groundMaterial = new THREE.MeshPhongMaterial({ map: groundTexture, roughness: 1, transparent: true, opacity: 0.8 });
             ground = new THREE.Mesh(groundGeometry, groundMaterial);
             ground.rotation.x = -Math.PI / 2;
             ground.receiveShadow = true;
@@ -454,7 +574,7 @@
 
             // Base
             const geometry0 = new THREE.BoxGeometry();
-            const material0 = new THREE.MeshPhongMaterial({ color: 0xffffff, roughness: 0.8, transparent: true, opacity: 0.5});
+            const material0 = new THREE.MeshPhongMaterial({ color: 0xffffff, roughness: 0.8, transparent: true, opacity: 0.5 });
             const mesh0 = new THREE.Mesh(geometry0, material0);
             mesh0.position.set(0.00, 0.2, 0.00);
             mesh0.rotation.set(0.00, 0.00, 0.00);
@@ -499,63 +619,63 @@
 
 
             // Cabina principal (escala 15x)
-/*             const geometrycockpit0 = new THREE.BoxGeometry();
-            const materialcockpit0 = new THREE.MeshPhongMaterial({ color: 0xff3030 });
-            const meshcockpit0 = new THREE.Mesh(geometrycockpit0, materialcockpit0);
-            meshcockpit0.position.set(0.00, 16.00, -50.00);
-            meshcockpit0.rotation.set(0.00, 0.00, 0.00);
-            meshcockpit0.scale.set(46.50, 22.50, 15.00); // Escala aumentada
-            scene.add(meshcockpit0); */
+            /*             const geometrycockpit0 = new THREE.BoxGeometry();
+                        const materialcockpit0 = new THREE.MeshPhongMaterial({ color: 0xff3030 });
+                        const meshcockpit0 = new THREE.Mesh(geometrycockpit0, materialcockpit0);
+                        meshcockpit0.position.set(0.00, 16.00, -50.00);
+                        meshcockpit0.rotation.set(0.00, 0.00, 0.00);
+                        meshcockpit0.scale.set(46.50, 22.50, 15.00); // Escala aumentada
+                        scene.add(meshcockpit0); */
 
             /* Cabina (escala 15x) */
-/*             const geometrycockpit1 = new THREE.BoxGeometry();
-            const materialcockpit1 = new THREE.MeshPhongMaterial({ color: 0xd3d3d3 });
-            const meshgeometrycockpit1 = new THREE.Mesh(geometrycockpit1, materialcockpit1);
-            meshgeometrycockpit1.position.set(-30.00, 12.25, -50.00);
-            meshgeometrycockpit1.rotation.set(0.00, 0.00, 0.00);
-            meshgeometrycockpit1.scale.set(15.00, 15.00, 15.00); // Escala aumentada
-            scene.add(meshgeometrycockpit1); */
+            /*             const geometrycockpit1 = new THREE.BoxGeometry();
+                        const materialcockpit1 = new THREE.MeshPhongMaterial({ color: 0xd3d3d3 });
+                        const meshgeometrycockpit1 = new THREE.Mesh(geometrycockpit1, materialcockpit1);
+                        meshgeometrycockpit1.position.set(-30.00, 12.25, -50.00);
+                        meshgeometrycockpit1.rotation.set(0.00, 0.00, 0.00);
+                        meshgeometrycockpit1.scale.set(15.00, 15.00, 15.00); // Escala aumentada
+                        scene.add(meshgeometrycockpit1); */
 
-/*             // Rueda 1 (escala 15x)
-            const geometryrueda1 = new THREE.CylinderGeometry();
-            const materialrueda1 = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const meshrueda1 = new THREE.Mesh(geometryrueda1, materialrueda1);
-            meshrueda1.position.set(-29.10, 4.3, -44
-            );
-            meshrueda1.rotation.set(1.56, 0.06, 0.00);
-            meshrueda1.scale.set(4.50, 4.50, 4.50); // Escala aumentada
-            scene.add(meshrueda1); */
+            /*             // Rueda 1 (escala 15x)
+                        const geometryrueda1 = new THREE.CylinderGeometry();
+                        const materialrueda1 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+                        const meshrueda1 = new THREE.Mesh(geometryrueda1, materialrueda1);
+                        meshrueda1.position.set(-29.10, 4.3, -44
+                        );
+                        meshrueda1.rotation.set(1.56, 0.06, 0.00);
+                        meshrueda1.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+                        scene.add(meshrueda1); */
 
-/*             // Rueda 2 (escala 15x)
-            const geometryrueda2 = new THREE.CylinderGeometry();
-            const materialrueda2 = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const meshrueda2 = new THREE.Mesh(geometryrueda2, materialrueda2);
-            meshrueda2.position.set(15.10, 4.3, -44
-            );
-            meshrueda2.rotation.set(1.56, 0.06, 0.00);
-            meshrueda2.scale.set(4.50, 4.50, 4.50); // Escala aumentada
-            scene.add(meshrueda2); */
+            /*             // Rueda 2 (escala 15x)
+                        const geometryrueda2 = new THREE.CylinderGeometry();
+                        const materialrueda2 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+                        const meshrueda2 = new THREE.Mesh(geometryrueda2, materialrueda2);
+                        meshrueda2.position.set(15.10, 4.3, -44
+                        );
+                        meshrueda2.rotation.set(1.56, 0.06, 0.00);
+                        meshrueda2.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+                        scene.add(meshrueda2); */
 
-/*             // Rueda 3 (escala 15x)
-            const geometryrueda3 = new THREE.CylinderGeometry();
-            const materialrueda3 = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const meshrueda3 = new THREE.Mesh(geometryrueda3, materialrueda3);
-            meshrueda3.position.set(-29.10, 4.3, -56
-            );
-            meshrueda3.rotation.set(1.56, 0.06, 0.00);
-            meshrueda3.scale.set(4.50, 4.50, 4.50); // Escala aumentada
-            scene.add(meshrueda3); */
+            /*             // Rueda 3 (escala 15x)
+                        const geometryrueda3 = new THREE.CylinderGeometry();
+                        const materialrueda3 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+                        const meshrueda3 = new THREE.Mesh(geometryrueda3, materialrueda3);
+                        meshrueda3.position.set(-29.10, 4.3, -56
+                        );
+                        meshrueda3.rotation.set(1.56, 0.06, 0.00);
+                        meshrueda3.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+                        scene.add(meshrueda3); */
 
-/*             // Rueda 4 (escala 15x)
-            const geometryrueda4 = new THREE.CylinderGeometry();
-            const materialrueda4 = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const meshrueda4 = new THREE.Mesh(geometryrueda4, materialrueda4);
-            meshrueda4.position.set(15.10, 4.3, -56
-            );
-            meshrueda4.rotation.set(1.56, 0.06, 0.00);
-            meshrueda4.scale.set(4.50, 4.50, 4.50); // Escala aumentada
-            scene.add(meshrueda4);
- */
+            /*             // Rueda 4 (escala 15x)
+                        const geometryrueda4 = new THREE.CylinderGeometry();
+                        const materialrueda4 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+                        const meshrueda4 = new THREE.Mesh(geometryrueda4, materialrueda4);
+                        meshrueda4.position.set(15.10, 4.3, -56
+                        );
+                        meshrueda4.rotation.set(1.56, 0.06, 0.00);
+                        meshrueda4.scale.set(4.50, 4.50, 4.50); // Escala aumentada
+                        scene.add(meshrueda4);
+             */
             /* rotacion */
 
 
@@ -935,6 +1055,21 @@
 
         init();
         animate();
+
+        // Agrega este script al final de tu archivo <script>
+        document.getElementById('toggle-tutorial').addEventListener('click', function () {
+            const tutorial = document.getElementById('tutorial');
+            if (tutorial.style.display === 'none') {
+                tutorial.style.display = 'block';
+            } else {
+                tutorial.style.display = 'none';
+            }
+        });
+
+        document.getElementById('toggle-tutorial2').addEventListener('click', function () {
+            const tutorial = document.getElementById('tutorial');
+            tutorial.style.display = tutorial.style.display === 'none' ? 'block' : 'none';
+        });
 
         document.getElementById('start-drill').addEventListener('click', startDrill);
         document.getElementById('stop-drill').addEventListener('click', stopDrill);
